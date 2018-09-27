@@ -48,7 +48,7 @@ export function findSiteName(meta) {
 }
 
 export function findPubDate(meta) {
-  return digMeta(meta, ['datePublished', 'article:published_time', 'og:pubdate']);
+  return digMeta(meta, ['datePublished', 'article:published_time', 'og:pubdate', 'date']);
 }
 
 export function findURL(meta) {
