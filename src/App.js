@@ -18,11 +18,14 @@ function LiList({items}) {
 
 function FlagList({flags}) {
   if(flags.length === 0) return null;
-  return (<div>
-          <p><i className="fas fa-flag mr-3"></i> Problems were found</p>
+  return (<div className="alert alert-danger">
+          <h5><i className="fas fa-flag mr-3"></i> Problems were found</h5>
           <ul>
             <LiList items={flags} />
           </ul>
+          <div className="d-flex justify-content-end">
+            <button className="btn btn-danger btn-sm">Resolve Problems</button>
+          </div>
         </div>);
 }
 
@@ -63,7 +66,7 @@ class App extends Component {
       else if(!author.includes(",")) flags.push("The author name was not properly formatted (Manually fix by replacing the name in the Last Name, First Name format)");
       if(title === null) flags.push("The title of the article or page could not be found");
       if(container === null) flags.push("The website name could not be found");
-      if(pubDate === null) flags.push("The published date could not be found");
+      if(!(findPubDate(meta))) flags.push("The published date could not be found");
       if(url === null) flags.push("A shortened link to the article or page could not be found (Manually fix by using the normal link)");
       this.setState({flags: flags});
       this.tearea.value = (author ? author + ". " : "") + "\"" + title + "\". " + container + ", " + (!findPubDate(meta) ? "[" + new Date().toDateString() + "]": pubDate.toDateString()) + ", " + url;
