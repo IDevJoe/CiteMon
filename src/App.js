@@ -8,11 +8,29 @@ import bootstrap from 'bootstrap/dist/js/bootstrap.min.js';
 import {getMeta, findAuthor, findTitle, findSiteName, findPubDate, findURL} from './MetaManager.js';
 import swal from 'sweetalert2';
 
+function LiList({items}) {
+  let x = [];
+  items.forEach((e) => {
+    x.push(<li>{e}</li>);
+  });
+  return x;
+}
+
+function FlagList({flags}) {
+  if(flags.length === 0) return null;
+  return (<div>
+          <p><i className="fas fa-flag mr-3"></i> Problems were found</p>
+          <ul>
+            <LiList items={flags} />
+          </ul>
+        </div>);
+}
+
 class App extends Component {
   constructor() {
     super();
     this.search = this.search.bind(this);
-    this.state = {citation: null};
+    this.state = {citation: null, flags: []};
   }
   componentDidMount() {
     swal("Testing CORS...");
@@ -34,12 +52,20 @@ class App extends Component {
     let url = this.url.value;
     fetch(this.url.value).then((e) => e.text()).catch(e => console.error(e))
     .then((e) => {
+      let flags = [];
       let meta = getMeta(e);
       let author = findAuthor(meta);
       let title = findTitle(meta);
       let container = findSiteName(meta);
       let pubDate = new Date(findPubDate(meta));
       let url = findURL(meta);
+      if(author === null) flags.push("The author name could not be found");
+      else if(!author.includes(",")) flags.push("The author name was not properly formatted (Manually fix by replacing the name in the Last Name, First Name format)");
+      if(title === null) flags.push("The title of the article or page could not be found");
+      if(container === null) flags.push("The website name could not be found");
+      if(pubDate === null) flags.push("The published date could not be found");
+      if(url === null) flags.push("A shortened link to the article or page could not be found (Manually fix by using the normal link)");
+      this.setState({flags: flags});
       this.tearea.value = (author ? author + ". " : "") + "\"" + title + "\". " + container + ", " + (!findPubDate(meta) ? "[" + new Date().toDateString() + "]": pubDate.toDateString()) + ", " + url;
     });
   }
@@ -61,6 +87,7 @@ class App extends Component {
             <textarea className="form-control w-100" ref={(e) => this.tearea = e}></textarea>
           </div>
         </div>
+        <FlagList flags={this.state.flags} />
       </div>
     );
   }
